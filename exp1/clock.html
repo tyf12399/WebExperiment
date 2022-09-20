@@ -1,0 +1,168 @@
+<div id="clock">
+  <div class="bg">
+    <div class="point">
+      <div id="hour"></div>
+      <div id="minute"></div>
+      <div id="second"></div>
+      <div class="circle"></div>
+    </div>
+  </div>
+  <div>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+
+      #clock {
+        margin: 5% auto;
+        width: 400px;
+        height: 400px;
+        border-radius: 10px;
+        background: rgb(253, 122, 122);
+        position: relative;
+        transform: rotate(-90deg);
+      }
+
+      #clock .bg {
+        width: 360px;
+        height: 360px;
+        border-radius: 50%;
+        background: #ffffff;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        margin-left: -180px;
+        margin-top: -180px;
+      }
+
+      #clock .point {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        margin-left: -14px;
+        margin-top: -14px;
+      }
+
+      #clock #hour {
+        width: 80px;
+        height: 16px;
+        background: #000;
+        margin: 6px 0 0 14px;
+        /*transform: rotate(30deg);*/
+        transform-origin: 0 8px;
+        /*animation: hour 3s linear 100!* alternate*!;*/
+        border-radius: 16px;
+      }
+
+      #clock #minute {
+        width: 120px;
+        height: 12px;
+        background: #000;
+        margin: -14px 0 0 14px;
+        transform-origin: 0 6px;
+        border-radius: 12px;
+      }
+
+      #clock #second {
+        width: 160px;
+        height: 6px;
+        background: #f00;
+        margin: -9px 0 0 14px;
+        transform-origin: 0 3px;
+        border-radius: 6px;
+      }
+
+      #clock .point .circle {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #000;
+        position: absolute;
+        left: 0;
+        top: 0;
+      }
+
+      @keyframes hour {
+        from {
+          transform: rotate(0deg);
+        }
+
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      #clock .number {
+        position: absolute;
+        font-size: 34px;
+        width: 50px;
+        height: 50px;
+        line-height: 50px;
+        text-align: center;
+        transform: rotate(90deg);
+      }
+    </style>
+  </div>
+</div>
+<script>
+  /***
+   * 时钟:
+   * 1> 旋转: rotate(90deg)
+   * 2> 旋转中心点: transform-origin
+   * */
+  //TODO step1: 获取时钟的指针
+  var hour = document.getElementById("hour"); //时针
+  var minute = document.getElementById("minute"); //分针
+  var second = document.getElementById("second"); //秒针
+  var myClock = document.getElementById("clock"); //时钟
+
+  //TODO step2: 获取当前时间,把指针放在正确的位置
+  function clock() {
+    var date = new Date(); //获取当前时间
+    //时(0-23) 分(0-59)秒(0-59)
+    //计算转动角度
+    var hourDeg = (date.getHours() * 360) / 12;
+    var minuteDeg = (date.getMinutes() * 360) / 60;
+    var secondDeg = (date.getSeconds() * 360) / 60;
+    //console.log(hourDeg, minuteDeg, secondDeg);
+    //设置指针
+    hour.style.transform = "rotate(" + hourDeg + "deg)";
+    minute.style.transform = "rotate(" + minuteDeg + "deg)";
+    second.style.transform = "rotate(" + secondDeg + "deg)";
+  }
+  //初始化执行一次
+  clock();
+  //TODO step3: 设置定时器
+  setInterval(clock, 1000);
+
+  /***
+   * 圆半径坐标计算：
+   * x = pointX + r*cos(angle);
+   * y = pointY + r*sin(angle);
+   * */
+  var pointX = 200;
+  var pointY = 200;
+  var r = 150;
+  //TODO step4: 画时钟数字
+  function drawNumber() {
+    var deg = (Math.PI * 2) / 12; //360°
+    for (var i = 1; i <= 12; i++) {
+      //计算每格的角度
+      var angle = deg * i;
+      //计算圆上的坐标
+      var x = pointX + r * Math.cos(angle);
+      var y = pointY + r * Math.sin(angle);
+      //创建div,写入数字
+      var number = document.createElement("div");
+      number.className = "number";
+      number.innerHTML = i;
+      //减去自身的一半, 让div的中心点在圆弧上
+      number.style.left = x - 25 + "px";
+      number.style.top = y - 25 + "px";
+      //添加到页面
+      myClock.appendChild(number);
+    }
+  }
+  drawNumber();
+</script>
