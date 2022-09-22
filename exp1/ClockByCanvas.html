@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8" />
+    <title>clock with canvas</title>
+    <meta author="Tang Yifan" />
+  </head>
+  <body>
+    <canvas id="clock"> </canvas>
+  </body>
+  <script>
+    var myClock = document.getElementById("clock");
+    myClock.width = 800;
+    myClock.height = 800;
+    /** @type {CanvasRenderingContext2D} */
+    var ctx = myClock.getContext("2d");
+    var r = myClock.width / 2;
+    function drawClock() {
+      ctx.clearRect(0, 0, 800, 800);
+      var date = new Date();
+      var milliseconds = date.getMilliseconds();
+      var seconds = date.getSeconds() + milliseconds / 1000;
+      var minutes = date.getMinutes() + seconds / 60;
+      var hours = date.getHours() + minutes / 60;
+      var hoursIn12 = hours % 12;
+      var secondsDeg = seconds * 6;
+      var minutesDeg = minutes * 6;
+      var hoursDeg = hoursIn12 * 30;
+
+      // draw clock face
+      ctx.beginPath();
+      ctx.translate(r, r);
+      ctx.lineWidth = 10;
+      ctx.arc(0, 0, r - 5, 0, 2 * Math.PI);
+      // set background color
+      ctx.fillStyle = "#66ccff";
+      ctx.fill();
+      ctx.stroke();
+      ctx.closePath();
+      for (var i = 0; i < 12; i++) {
+        ctx.beginPath();
+        ctx.lineWidth = 10;
+        ctx.rotate((30 * Math.PI) / 180);
+        ctx.moveTo(0, -r + 40);
+        ctx.lineTo(0, -r + 10);
+        ctx.stroke();
+        ctx.closePath();
+      }
+      ctx.lineWidth = 6;
+      for (var i = 0; i < 60; i++) {
+        ctx.beginPath();
+        ctx.rotate((6 * Math.PI) / 180);
+        ctx.moveTo(0, -r + 25);
+        ctx.lineTo(0, -r + 10);
+        ctx.stroke();
+        ctx.closePath();
+      }
+      // draw numbers
+      ctx.font = "30px Fira Code SemiBold";
+      ctx.fillStyle = "#000000";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      for (var i = 1; i <= 12; i++) {
+        ctx.beginPath();
+        ctx.rotate((30 * Math.PI) / 180);
+        ctx.fillText(i, 0, -r + 60);
+        ctx.closePath();
+      }
+      // draw seconds
+      ctx.beginPath();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "#FF0000";
+      ctx.rotate((secondsDeg * Math.PI) / 180);
+      ctx.moveTo(0, 0);
+      ctx.lineTo(0, -r + 50);
+      ctx.stroke();
+      ctx.closePath();
+      // draw minutes
+      ctx.beginPath();
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = "#000000";
+      ctx.rotate(((minutesDeg - secondsDeg) * Math.PI) / 180);
+      ctx.moveTo(0, 0);
+      ctx.lineTo(0, -r + 100);
+      ctx.stroke();
+      ctx.closePath();
+      // draw hours
+      ctx.beginPath();
+      ctx.lineWidth = 6;
+      ctx.strokeStyle = "#000000";
+      ctx.rotate(((hoursDeg - minutesDeg) * Math.PI) / 180);
+      ctx.moveTo(0, 0);
+      ctx.lineTo(0, -r + 150);
+      ctx.stroke();
+      ctx.closePath();
+      // draw center point
+      ctx.beginPath();
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = "#000000";
+      ctx.fillStyle = "#000000";
+      ctx.arc(0, 0, 15, 0, 360, false);
+      ctx.fill();
+      ctx.stroke();
+      ctx.closePath();
+      ctx.save();
+      //restore the context to its untranslated and unrotated state
+      ctx.translate(-r, -r);
+      ctx.resetTransform();
+    }
+    drawClock();
+    setInterval(drawClock, 10);
+  </script>
+  
+</html>

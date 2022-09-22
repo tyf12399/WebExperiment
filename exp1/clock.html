@@ -1,3 +1,10 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Colck</title>
+    <meta author="Tang Yifan" />
+  </head>
 <div id="clock">
   <div class="bg">
     <div class="point">
@@ -7,104 +14,102 @@
       <div class="circle"></div>
     </div>
   </div>
-  <div>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-      }
-
-      #clock {
-        margin: 5% auto;
-        width: 400px;
-        height: 400px;
-        border-radius: 10px;
-        background: rgb(253, 122, 122);
-        position: relative;
-        transform: rotate(-90deg);
-      }
-
-      #clock .bg {
-        width: 360px;
-        height: 360px;
-        border-radius: 50%;
-        background: #ffffff;
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        margin-left: -180px;
-        margin-top: -180px;
-      }
-
-      #clock .point {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        margin-left: -14px;
-        margin-top: -14px;
-      }
-
-      #clock #hour {
-        width: 80px;
-        height: 16px;
-        background: #000;
-        margin: 6px 0 0 14px;
-        /*transform: rotate(30deg);*/
-        transform-origin: 0 8px;
-        /*animation: hour 3s linear 100!* alternate*!;*/
-        border-radius: 16px;
-      }
-
-      #clock #minute {
-        width: 120px;
-        height: 12px;
-        background: #000;
-        margin: -14px 0 0 14px;
-        transform-origin: 0 6px;
-        border-radius: 12px;
-      }
-
-      #clock #second {
-        width: 160px;
-        height: 6px;
-        background: #f00;
-        margin: -9px 0 0 14px;
-        transform-origin: 0 3px;
-        border-radius: 6px;
-      }
-
-      #clock .point .circle {
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        background: #000;
-        position: absolute;
-        left: 0;
-        top: 0;
-      }
-
-      @keyframes hour {
-        from {
-          transform: rotate(0deg);
-        }
-
-        to {
-          transform: rotate(360deg);
-        }
-      }
-
-      #clock .number {
-        position: absolute;
-        font-size: 34px;
-        width: 50px;
-        height: 50px;
-        line-height: 50px;
-        text-align: center;
-        transform: rotate(90deg);
-      }
-    </style>
-  </div>
 </div>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+  }
+
+  #clock {
+    margin: 5% auto;
+    width: 400px;
+    height: 400px;
+    border-radius: 10px;
+    background: #fd7a7a;
+    position: relative;
+    transform: rotate(-90deg);
+  }
+
+  #clock .bg {
+    width: 360px;
+    height: 360px;
+    border-radius: 50%;
+    background: #ffffff;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-left: -180px;
+    margin-top: -180px;
+  }
+
+  #clock .point {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-left: -14px;
+    margin-top: -14px;
+  }
+
+  #clock #hour {
+    width: 80px;
+    height: 16px;
+    background: #000;
+    margin: 6px 0 0 14px;
+    /*transform: rotate(30deg);*/
+    transform-origin: 0 8px;
+    /*animation: hour 3s linear 100!* alternate*!;*/
+    border-radius: 16px;
+  }
+
+  #clock #minute {
+    width: 120px;
+    height: 12px;
+    background: #000000;
+    margin: -14px 0 0 14px;
+    transform-origin: 0 6px;
+    border-radius: 12px;
+  }
+
+  #clock #second {
+    width: 160px;
+    height: 6px;
+    background: #ff0000;
+    margin: -9px 0 0 14px;
+    transform-origin: 0 3px;
+    border-radius: 6px;
+  }
+
+  #clock .point .circle {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #000000;
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+  @keyframes hour {
+    from {
+      transform: rotate(0deg);
+    }
+
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  #clock .number {
+    position: absolute;
+    font-size: 34px;
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    text-align: center;
+    transform: rotate(90deg);
+  }
+</style>
 <script>
   /***
    * 时钟:
@@ -166,3 +171,4 @@
   }
   drawNumber();
 </script>
+</html>
