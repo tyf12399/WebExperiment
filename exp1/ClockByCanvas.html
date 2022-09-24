@@ -8,7 +8,20 @@
   <body>
     <canvas id="clock"> </canvas>
   </body>
+  <style>
+    @import url(https://cdn.jsdelivr.net/npm/firacode@6.2.0/distr/fira_code.css);
+    body {
+      background-color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+    canvas {
+      display: block;
+      margin: 0 auto;
+    }
+  </style>
   <script>
+
     var myClock = document.getElementById("clock");
     myClock.width = 800;
     myClock.height = 800;
@@ -26,6 +39,22 @@
       var secondsDeg = seconds * 6;
       var minutesDeg = minutes * 6;
       var hoursDeg = hoursIn12 * 30;
+      // draw border as a round rectangle
+      ctx.beginPath();
+      ctx.moveTo(0, 80);
+      ctx.lineTo(0, 720);
+      ctx.strokeStyle = "#000000";
+      ctx.arc(80, 720, 80, Math.PI, Math.PI * 0.5, true);
+      ctx.lineTo(720, 800);
+      ctx.arc(720, 720, 80, Math.PI * 0.5, 0, true);
+      ctx.lineTo(800, 80);
+      ctx.arc(720, 80, 80, 0, Math.PI * 1.5, true);
+      ctx.lineTo(80, 0);
+      ctx.arc(80, 80, 80, Math.PI * 1.5, Math.PI, true);
+      ctx.stroke();
+      ctx.fillStyle = "#ffff00";
+      ctx.fill();
+      ctx.closePath();
 
       // draw clock face
       ctx.beginPath();
@@ -103,7 +132,7 @@
       ctx.stroke();
       ctx.closePath();
       ctx.save();
-      //restore the context to its untranslated and unrotated state
+      // restore the context to its untranslated and unrotated state
       ctx.translate(-r, -r);
       ctx.resetTransform();
     }
