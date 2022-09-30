@@ -1,2 +1,2 @@
 # WebExperiment
-A repository for my web development course
+A repository for TangYifan web development course
