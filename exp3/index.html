@@ -1,9 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-</head>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta lang="zh-CN" />
+    <meta date="2022/10/11" />
+    <meta author="唐一凡" />
+    <title>实验三</title>
+  </head>
 <body>
-  <h1>Hello World</h1>
+  <h1>image viewer test</h1>
+  <div id = "image_list">
+    <!-- a table view to show images get from http://localhost:3000/images/:name -->
+    <ul id="images">
+    </ul>
+  </div>
+  <div>
+    <!-- send images to http://localhost:3000/images/ -->
+    <form id="upload" action="http://localhost:3000/images/" method="post" enctype="multipart/form-data">
+      <input type="file" name="image" />
+      <input type="submit" value="upload" />
+  </div>
 </body>
 </html>
+<script>
+  // get images from http://localhost:3000/images/
+  fetch('http://localhost:3000/images/')
+    .then(res => res.json())
+    .then(data => {
+      // get the ul element
+      const ul = document.getElementById('images')
+      // add a li element for each image
+      data.forEach(item => {
+        // show the image and its name
+        const li = document.createElement('li')
+        li.innerHTML = `<img src="${item.url}" alt="${item.name}" id="image"/><p id="img_name">${item.name}</p>`
+        ul.appendChild(li)
+      })
+    })
+
+</script>
