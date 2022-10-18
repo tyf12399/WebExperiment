@@ -49,5 +49,5 @@ app.post("/images", upload.single("image"), function (req, res) {
   var fs = require("fs");
   fs.writeFileSync(__dirname + "/images/" + req.file.originalname, req.file.buffer);
   console.log("Received " + req.file.originalname);
-  res.redirect("/");
+  res.send("OK");
 });
