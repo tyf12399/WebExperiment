@@ -1,2 +1,4 @@
 node_modules/
 images/*
+!images/placeholder.png
+apikey.js
