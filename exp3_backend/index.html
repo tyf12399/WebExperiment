@@ -18,7 +18,7 @@
     <!-- send images to http://localhost:3000/images/ -->
     <form id="upload" action="http://localhost:3000/images/" method="post" enctype="multipart/form-data">
       <input type="file" name="image" />
-      <input type="submit" value="upload" />
+      <input type="submit" value="上传" />
     </form>
   </div>
 </body>
@@ -38,7 +38,26 @@
         ul.appendChild(li)
       })
     })
-
+  // send images to http://localhost:3000/images/
+  // and refresh the page
+  const form = document.getElementById('upload')
+  form.addEventListener('submit', e => {
+    e.preventDefault()
+    const formData = new FormData(form)
+    fetch('http://localhost:3000/images/', {
+      method: 'POST',
+      body: formData
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log(data)
+        const ul = document.getElementById('images')
+        const li = document.createElement('li')
+        li.innerHTML = `<div id="img_container"><img src="${data.url}" alt="${data.name}" id="image"/><p id="img_name">${data.name}</p>`
+        ul.appendChild(li)
+      })
+  })
+  
 </script>
 
 <style>

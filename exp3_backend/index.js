@@ -1,11 +1,13 @@
 // a nodejs server that provides a RESTful API for the web page
 
 // import modules
-var express = require("express");
-var multer = require("multer");
-// import secret API key
-import { API_KEY } from "./apikey.js";
-
+const express = require("express");
+const multer = require("multer");
+const fs = require("fs");
+const apikey = require("./apikey.js");
+const { get } = require("http");
+const ExifImage = require("exif").ExifImage;
+console.log("apikey: " + apikey.AMAP_KEY);
 // create an express application
 var app = express();
 // listen on port 3000
@@ -20,22 +22,30 @@ app.get("/", function (req, res) {
 
 // respond to GET requests to /images
 app.get("/images", function (req, res) {
-  // respond with a json object that contains the names and URLs of the images in the /images folder
+  // respond with a json object that contains the names, URLs, locations, and dates of all the images
   var images = [];
-  var fs = require("fs");
   var files = fs.readdirSync(__dirname + "/images");
-  if (files) {
-    for (var i = 0; i < files.length; i++) {
-      images.push({
-        name: files[i],
-        url: "http://localhost:3000/images/" + files[i],
+  // wait for all the data to be retrieved
+  Promise.all(
+    files.map((file) => {
+      return new Promise((resolve, reject) => {
+        // get the address and date of the image
+        var image = {};
+        var data = getData(__dirname + "/images/" + file);
+        data.then((result) => {
+          image.name = file;
+          image.url = "http://localhost:3000/images/" + file;
+          image.address = result.address;
+          image.date = result.date;
+          images.push(image);
+          resolve();
+        });
       });
-    }
-    console.log("Sending " + images.length + " images");
+    })
+  ).then(() => {
+    console.log(images);
     res.json(images);
-  } else {
-    console.log("No files found");
-  }
+  });
 });
 
 // respond to GET requests to /images/:name
@@ -48,70 +58,74 @@ app.get("/images/:name", function (req, res) {
 var upload = multer();
 // respond to POST requests to /images
 app.post("/images", upload.single("image"), function (req, res) {
-  // save the image file to the /images folder
-  var fs = require("fs");
-  var filename = req.file.originalname.toString("utf8");
-  fs.writeFileSync(
-    __dirname + "/images/" + filename,
-    req.file.buffer
-  );
-  console.log("Received " + filename);
-  // get the GPS coordinates from the image file
-  var gps = getPlace(__dirname + "/images/" + filename);
-  // console.log(gps);
-  res.redirect("/");
+  // save the image file
+  var filename = Buffer.from(req.file.originalname, "latin1").toString("utf8");
+  console.log("Saving " + filename);
+  fs.writeFileSync(__dirname + "/images/" + filename, req.file.buffer);
+  // respond with the URL of the image file
+  res.json({
+    url: "http://localhost:3000/images/" + filename,
+    name: filename,
+  });
 });
 
-// get the Place Info from the exif data
-function getPlace(image) {
-  // read the image file
-  var fs = require("fs");
-  var buffer = fs.readFileSync(image);
-  // get the GPS coordinates from the image file
-  var ExifImage = require("exif").ExifImage;
-  try {
-    new ExifImage({ image: buffer }, function (error, exifData) {
-      if (error) {
-        console.log("Error: " + error.message);
-      } else {
-        console.log(exifData);
-        // get the latitude and longitude coordinates
-        var latitude = exifData.gps.GPSLatitude;
-        var longitude = exifData.gps.GPSLongitude;
-        latitude = latitude[0] + latitude[1] / 60 + latitude[2] / 3600;
-        longitude = longitude[0] + longitude[1] / 60 + longitude[2] / 3600;
-        console.log(latitude + ", " + longitude);
-        // get the place name from the latitude and longitude coordinates
-        var request = require("https").request({
-          host: "restapi.amap.com",
-          path:
-            "/v3/geocode/regeo?key=" +
-            API_KEY +
-            "&location=" +
-            longitude +
-            "," +
-            latitude +
-            "&radius=1000&extensions=all",
-          method: "GET",
-        });
-        request.end();
-        request.on("response", function (response) {
-          var body = "";
-          response.on("data", function (chunk) {
-            body += chunk;
-          });
-          response.on("end", function () {
-            var data = JSON.parse(body);
-            console.log(data);
-            // return data;
-            var place = data.regeocode.formatted_address;
-            console.log(place);
-            return place;
-          });
-        });
-      }
+// get the exif data from the image file
+function getEXIF(filename) {
+  return new Promise((resolve) => {
+    ExifImage(filename, (err, data) => {
+      resolve(data);
     });
-  } catch (error) {
-    console.log("Error: " + error.message);
+  });
+}
+
+async function getData(filename) {
+  var data = {};
+  // wait for the exif data to be retrieved
+  var exifData = await getEXIF(filename);
+  // get the location data from the exif data
+  if (exifData.gps) {
+    var lon =
+      exifData.gps.GPSLongitude[0] +
+      exifData.gps.GPSLongitude[1] / 60 +
+      exifData.gps.GPSLongitude[2] / 3600;
+    var lat =
+      exifData.gps.GPSLatitude[0] +
+      exifData.gps.GPSLatitude[1] / 60 +
+      exifData.gps.GPSLatitude[2] / 3600;
+    if (exifData.gps.GPSLongitudeRef == "W") lon = -lon;
+    if (exifData.gps.GPSLatitudeRef == "S") lat = -lat;
+    location = lon + "," + lat;
+    // get the address from the location
+    var address = await getAddress(location);
+    data.address = address;
   }
+  // get the date data from the exif
+  if (exifData.exif) {
+    data.date = exifData.exif.CreateDate;
+  }
+  return data;
+}
+
+async function getAddress(location) {
+  var url =
+    "https://restapi.amap.com/v3/geocode/regeo?location=" +
+    location +
+    "&key=" +
+    apikey.AMAP_KEY;
+  // get the address data from the url
+  var https = require("https");
+  var address = await new Promise((resolve) => {
+    https.get(url, (res) => {
+      var data = "";
+      res.on("data", (chunk) => {
+        data += chunk;
+      });
+      res.on("end", () => {
+        var json = JSON.parse(data);
+        console.log(json);
+        resolve(json.regeocode.formatted_address);
+      });
+    });
+  });
+  return address;
 }
