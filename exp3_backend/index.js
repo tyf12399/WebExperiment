@@ -122,7 +122,6 @@ async function getAddress(location) {
       });
       res.on("end", () => {
         var json = JSON.parse(data);
-        console.log(json);
         resolve(json.regeocode.formatted_address);
       });
     });
