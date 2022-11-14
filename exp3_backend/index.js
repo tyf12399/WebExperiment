@@ -82,6 +82,8 @@ async function getData(filename) {
   var data = {};
   // wait for the exif data to be retrieved
   var exifData = await getEXIF(filename);
+  console.log(exifData);
+  // TODO: return null if the image does not have GPS data
   // get the location data from the exif data
   if (exifData.gps) {
     var lon =

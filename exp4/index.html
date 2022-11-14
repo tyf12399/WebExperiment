@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta author="Tang Yifan">
+  <title>实验四</title>
+</head>
+<body>
+  <!-- an input box -->
+  <input type="text" id="input" />
+  <!-- a button -->
+  <button id="button" onclick="Sorted()">确定</button>
+  <!-- a div to show sorted texts-->
+  <div id="result"></div>
+</body>
+</html>
+  <script>
+    // send a request to the http://localhost:3000/sort?text=xxx
+    function Sorted() {
+      var text = document.getElementById("input").value;
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", "http://localhost:3000/sort?text=" + text, true);
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+          document.getElementById("result").innerHTML = xhr.responseText;
+        }
+      }
+      xhr.send();
+    }
+  </script>
