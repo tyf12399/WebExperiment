@@ -2,14 +2,17 @@
 
 // import modules
 const express = require("express");
-const multer = require("multer");
+const cors = require("cors");
 const fs = require("fs");
 const apikey = require("./apikey.js");
 const { get } = require("http");
 const ExifImage = require("exif").ExifImage;
+const formidable = require("formidable");
+
 console.log("apikey: " + apikey.AMAP_KEY);
 // create an express application
 var app = express();
+app.use(cors());
 // listen on port 3000
 app.listen(3000);
 console.log("Server running at http://localhost:3000/");
@@ -54,18 +57,23 @@ app.get("/images/:name", function (req, res) {
   res.sendFile(__dirname + "/images/" + req.params.name);
 });
 
-// parse multipart/form-data
-var upload = multer();
 // respond to POST requests to /images
-app.post("/images", upload.single("image"), function (req, res) {
+app.post("/images", function (req, res) {
   // save the image file
-  var filename = Buffer.from(req.file.originalname, "latin1").toString("utf8");
-  console.log("Saving " + filename);
-  fs.writeFileSync(__dirname + "/images/" + filename, req.file.buffer);
-  // respond with the URL of the image file
-  res.json({
-    url: "http://localhost:3000/images/" + filename,
-    name: filename,
+  var form = new formidable.IncomingForm();
+  form.keepExtensions = true;
+  form.uploadDir = __dirname + "/images";
+  // save the file as the current time
+  form.on("fileBegin", function (name, file) {
+    file.path = form.uploadDir + "/" + Date.now() + file.name;
+  });
+  form.parse(req, function (err, fields, files) {
+    if (err) {
+      console.log(err);
+      res.status(500).send("Internal Server Error");
+    } else {
+      res.status(200).send("OK");
+    }
   });
 });
 
@@ -82,10 +90,9 @@ async function getData(filename) {
   var data = {};
   // wait for the exif data to be retrieved
   var exifData = await getEXIF(filename);
-  console.log(exifData);
   // TODO: return null if the image does not have GPS data
   // get the location data from the exif data
-  if (exifData.gps) {
+  try {
     var lon =
       exifData.gps.GPSLongitude[0] +
       exifData.gps.GPSLongitude[1] / 60 +
@@ -100,10 +107,14 @@ async function getData(filename) {
     // get the address from the location
     var address = await getAddress(location);
     data.address = address;
+  } catch (err) {
+    data.address = "unknown";
   }
   // get the date data from the exif
-  if (exifData.exif) {
+  try {
     data.date = exifData.exif.CreateDate;
+  } catch (err) {
+    data.date = "unknown";
   }
   return data;
 }
