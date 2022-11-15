@@ -63,16 +63,17 @@ app.post("/images", function (req, res) {
   var form = new formidable.IncomingForm();
   form.keepExtensions = true;
   form.uploadDir = __dirname + "/images";
-  // save the file as the current time
-  form.on("fileBegin", function (name, file) {
-    file.path = form.uploadDir + "/" + Date.now() + file.name;
-  });
   form.parse(req, function (err, fields, files) {
     if (err) {
       console.log(err);
-      res.status(500).send("Internal Server Error");
+      res.status(500).send("Server error");
     } else {
-      res.status(200).send("OK");
+      //为上传的文件重命名：其中files.file.path可以获取文件的上传路径
+      fs.renameSync(
+        files.file.filepath,
+        form.uploadDir + "/" + files.file.originalFilename
+      );
+      res.status(200).send("File uploaded");
     }
   });
 });

@@ -16,11 +16,11 @@ import {
   darkTheme,
   NSpace,
   NButton,
-  NInput
+  NInput,
 } from "naive-ui";
 
 const theme = ref(useOsTheme().value === "dark" ? darkTheme : null);
-var range= ref<[number, number]>([1183135260000, Date.now()])
+var range = ref<[number, number]>([1183135260000, Date.now()]);
 // get image info form http://localhost:3000/images
 var imageList = ref([]);
 fetch("http://localhost:3000/images")
@@ -31,8 +31,17 @@ fetch("http://localhost:3000/images")
     });
   });
 
-// when upload file success , refresh image list
-
+// when upload file success , refresh imageList
+const onUploadSuccess = () => {
+  fetch("http://localhost:3000/images")
+    .then((response) => response.json())
+    .then((data) => {
+      imageList.value = [];
+      forEach(data, (value, key) => {
+        imageList.value.push(value);
+      });
+    });
+};
 </script>
 <template>
   <n-config-provider :theme="theme">
@@ -40,25 +49,28 @@ fetch("http://localhost:3000/images")
       <!-- image filter -->
       <n-space>
         <n-input placeholder="filter" />
-        <n-button round >filter</n-button>
+        <n-button round>filter</n-button>
       </n-space>
-    <n-divider />
-      <n-image-group>
+      <n-divider />
+      <n-image-group show-toolbar-tooltip>
         <n-space>
           <n-image
             width="200"
+            lazy
             v-for="image in imageList"
             :src="image.url"
-            :alt="image.name+','+image.address+','+image.date"
+            :alt="image.name + ',' + image.address + ',' + image.date"
           />
         </n-space>
       </n-image-group>
-    <n-divider />
+      <n-divider />
       <n-upload
         multiple
         directory-dnd
         action="http://localhost:3000/images"
         :max="5"
+        accept=".jpg,.jpeg,.png"
+        :on-finish="onUploadSuccess"
       >
         <n-upload-dragger>
           <div style="margin-bottom: 12px">
