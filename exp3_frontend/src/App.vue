@@ -17,6 +17,7 @@ import {
   NSpace,
   NButton,
   NInput,
+  NCard
 } from "naive-ui";
 
 const theme = ref(useOsTheme().value === "dark" ? darkTheme : null);
@@ -31,6 +32,8 @@ fetch("http://localhost:3000/images")
     });
   });
 
+var search = ref("");
+
 // when upload file success , refresh imageList
 const onUploadSuccess = () => {
   fetch("http://localhost:3000/images")
@@ -38,18 +41,31 @@ const onUploadSuccess = () => {
     .then((data) => {
       imageList.value = [];
       forEach(data, (value, key) => {
+        console.log(value);
         imageList.value.push(value);
       });
     });
 };
+
+const onInput = (e) => { 
+  search.value = e;
+};
+
+function onSearch() {
+
+}
 </script>
 <template>
   <n-config-provider :theme="theme">
     <n-space vertical>
       <!-- image filter -->
       <n-space>
-        <n-input placeholder="filter" />
-        <n-button round>filter</n-button>
+        <n-input
+          placeholder="Search"
+          v-model:value="search"
+          @input="onInput"
+        />
+        <n-button @click="onSearch">Search</n-button>
       </n-space>
       <n-divider />
       <n-image-group show-toolbar-tooltip>
@@ -63,6 +79,9 @@ const onUploadSuccess = () => {
           />
         </n-space>
       </n-image-group>
+      <n-card>
+        {{ imageList }}
+      </n-card>
       <n-divider />
       <n-upload
         multiple
